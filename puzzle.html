@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Image Puzzle</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 2px;
+            margin: 20px auto;
+            width: 306px;
+            border: 5px solid #333;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            background-size: 300px 300px;
+            cursor: grab;
+            border: 1px solid #000;
+            transition: all 0.2s;
+        }
+        .puzzle-piece:active {
+            cursor: grabbing;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Daily Image Puzzle</h1>
+    <p>Rearrange the tiles to complete today's puzzle!</p>
+    <div class="puzzle-container" id="puzzleBoard"></div>
+    <button onclick="shufflePuzzle()">Shuffle</button>
+    
+    <script>
+        const imageURL = "your-image-url.jpg"; // Replace with your image URL
+        let puzzlePieces = [];
+        let emptyIndex = 8; // Represents the empty space for sliding puzzle effect
+
+        function createPuzzle() {
+            const board = document.getElementById("puzzleBoard");
+            board.innerHTML = "";
+            puzzlePieces = [];
+            
+            for (let i = 0; i < 9; i++) {
+                let piece = document.createElement("div");
+                piece.classList.add("puzzle-piece");
+                piece.style.backgroundImage = `url('${imageURL}')`;
+                piece.style.backgroundPosition = `${-(i % 3) * 100}px ${-Math.floor(i / 3) * 100}px`;
+                piece.dataset.index = i;
+                piece.draggable = true;
+                piece.addEventListener("dragstart", dragStart);
+                piece.addEventListener("dragover", dragOver);
+                piece.addEventListener("drop", drop);
+                puzzlePieces.push(piece);
+                board.appendChild(piece);
+            }
+            puzzlePieces[emptyIndex].style.visibility = "hidden"; // Create an empty tile
+        }
+
+        function shufflePuzzle() {
+            let positions = [...Array(9).keys()];
+            positions.sort(() => Math.random() - 0.5);
+            puzzlePieces.forEach((piece, index) => {
+                piece.dataset.index = positions[index];
+                piece.style.backgroundPosition = `${-(positions[index] % 3) * 100}px ${-Math.floor(positions[index] / 3) * 100}px`;
+            });
+        }
+
+        function dragStart(e) {
+            e.dataTransfer.setData("text/plain", e.target.dataset.index);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            let draggedIndex = e.dataTransfer.getData("text/plain");
+            let targetIndex = e.target.dataset.index;
+            
+            let temp = puzzlePieces[draggedIndex].style.backgroundPosition;
+            puzzlePieces[draggedIndex].style.backgroundPosition = puzzlePieces[targetIndex].style.backgroundPosition;
+            puzzlePieces[targetIndex].style.backgroundPosition = temp;
+        }
+
+        createPuzzle();
+    </script>
+</body>
+</html>
